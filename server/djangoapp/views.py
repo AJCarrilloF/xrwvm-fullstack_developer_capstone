@@ -3,6 +3,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import logout
 from django.contrib import messages
@@ -45,9 +46,33 @@ def logout_request(request):
     logout(request)
     data = {"status": "Logged out"}
     return JsonResponse(data)
+
 # Create a `registration` view to handle sign up request
-# @csrf_exempt
-# def registration(request):
+@csrf_exempt
+def registration(request):
+    new_user = get_user_model()
+    req = json.loads(request.body)
+    new_user = new_user.objects.create_user(
+        username=req['userName'],
+        
+        password=req['password'],
+        first_name=req['firstName'],
+        last_name=req['lastName'],
+        email=req['email'])
+    
+    new_user.save()
+    data = login_user(request)
+    
+    return data
+    
+
+#b'{
+# "userName":"nval",
+# "password":"12345",
+# "firstName":"",
+# "lastName":"nvallast",
+# "email":"nval@email.com"
+#}
 # ...
 
 # # Update the `get_dealerships` view to render the index page with
